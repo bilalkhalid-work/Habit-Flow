@@ -2,13 +2,15 @@ import { auth, db } from "../firebase";
 import { signOut } from "firebase/auth";
 import { useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
-import { collection, query, where, onSnapshot, deleteDoc, doc, setDoc, getDoc, updateDoc } from "firebase/firestore";
+import { collection, query, where, onSnapshot, deleteDoc, doc, setDoc, getDoc, updateDoc, getDocs } from "firebase/firestore";
 import AddHabit from "../components/AddHabit";
+import { calculateStreak } from "../utils/streakCalculator";
 
 function Dashboard() {
   const navigate = useNavigate();
   const [habits, setHabits] = useState([]);
   const [completions, setCompletions] = useState({});
+  const [streaks, setStreaks] = useState({});
   const [editingId, setEditingId] = useState(null);
   const [editingName, setEditingName] = useState("");
   const today = new Date().toISOString().split("T")[0];
@@ -29,18 +31,32 @@ function Dashboard() {
   }, []);
 
   useEffect(() => {
-    const fetchCompletions = async () => {
+    const fetchCompletionsAndStreaks = async () => {
       const newCompletions = {};
+      const newStreaks = {};
+
       for (const habit of habits) {
-        const ref = doc(db, "completions", `${habit.id}_${today}`);
-        const snap = await getDoc(ref);
-        if (snap.exists()) {
+        const todayRef = doc(db, "completions", `${habit.id}_${today}`);
+        const todaySnap = await getDoc(todayRef);
+        if (todaySnap.exists()) {
           newCompletions[habit.id] = true;
         }
+
+        const q = query(
+          collection(db, "completions"),
+          where("habitId", "==", habit.id),
+          where("userId", "==", auth.currentUser.uid)
+        );
+        const snapshot = await getDocs(q);
+        const dates = snapshot.docs.map((doc) => doc.data().date);
+        newStreaks[habit.id] = calculateStreak(dates);
       }
+
       setCompletions(newCompletions);
+      setStreaks(newStreaks);
     };
-    if (habits.length > 0) fetchCompletions();
+
+    if (habits.length > 0) fetchCompletionsAndStreaks();
   }, [habits]);
 
   const handleToggle = async (habitId) => {
@@ -130,9 +146,14 @@ function Dashboard() {
                       </button>
                     </div>
                   ) : (
-                    <span className={`text-lg font-medium ${completions[habit.id] ? "line-through text-gray-400" : ""}`}>
-                      {habit.name}
-                    </span>
+                    <div>
+                      <span className={`text-lg font-medium ${completions[habit.id] ? "line-through text-gray-400" : ""}`}>
+                        {habit.name}
+                      </span>
+                      <p className="text-sm text-orange-500 font-medium">
+                        🔥 {streaks[habit.id] || 0} day streak
+                      </p>
+                    </div>
                   )}
                 </div>
                 <div className="flex gap-3">

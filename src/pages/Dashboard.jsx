@@ -2,13 +2,15 @@ import { auth, db } from "../firebase";
 import { signOut } from "firebase/auth";
 import { useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
-import { collection, query, where, onSnapshot, deleteDoc, doc, setDoc, getDoc } from "firebase/firestore";
+import { collection, query, where, onSnapshot, deleteDoc, doc, setDoc, getDoc, updateDoc } from "firebase/firestore";
 import AddHabit from "../components/AddHabit";
 
 function Dashboard() {
   const navigate = useNavigate();
   const [habits, setHabits] = useState([]);
   const [completions, setCompletions] = useState({});
+  const [editingId, setEditingId] = useState(null);
+  const [editingName, setEditingName] = useState("");
   const today = new Date().toISOString().split("T")[0];
 
   useEffect(() => {
@@ -56,6 +58,18 @@ function Dashboard() {
     }
   };
 
+  const handleEdit = (habitId, currentName) => {
+    setEditingId(habitId);
+    setEditingName(currentName);
+  };
+
+  const handleSaveEdit = async (habitId) => {
+    if (!editingName.trim()) return;
+    await updateDoc(doc(db, "habits", habitId), { name: editingName });
+    setEditingId(null);
+    setEditingName("");
+  };
+
   const handleDelete = async (habitId) => {
     await deleteDoc(doc(db, "habits", habitId));
   };
@@ -94,16 +108,47 @@ function Dashboard() {
                     onChange={() => handleToggle(habit.id)}
                     className="w-5 h-5 cursor-pointer"
                   />
-                  <span className={`text-lg font-medium ${completions[habit.id] ? "line-through text-gray-400" : ""}`}>
-                    {habit.name}
-                  </span>
+                  {editingId === habit.id ? (
+                    <div className="flex gap-2">
+                      <input
+                        type="text"
+                        value={editingName}
+                        onChange={(e) => setEditingName(e.target.value)}
+                        className="border p-1 rounded-lg text-sm"
+                      />
+                      <button
+                        onClick={() => handleSaveEdit(habit.id)}
+                        className="text-green-500 hover:text-green-700 text-sm"
+                      >
+                        Save
+                      </button>
+                      <button
+                        onClick={() => setEditingId(null)}
+                        className="text-gray-400 hover:text-gray-600 text-sm"
+                      >
+                        Cancel
+                      </button>
+                    </div>
+                  ) : (
+                    <span className={`text-lg font-medium ${completions[habit.id] ? "line-through text-gray-400" : ""}`}>
+                      {habit.name}
+                    </span>
+                  )}
                 </div>
-                <button
-                  onClick={() => handleDelete(habit.id)}
-                  className="text-red-400 hover:text-red-600 text-sm"
-                >
-                  Delete
-                </button>
+                <div className="flex gap-3">
+                  <button
+                    onClick={() => handleEdit(habit.id, habit.name)}
+                    className="text-blue-400 hover:text-blue-600 text-sm"
+                  >
+                    Edit
+                  </button>
+                  <button
+                    onClick={() => handleDelete(habit.id)}
+                    className="text-red-400 hover:text-red-600 text-sm"
+                  >
+                    Delete
+                  </button>
+                </div>
               </div>
             ))}
           </div>

@@ -5,6 +5,7 @@ import { useEffect, useState } from "react";
 import { collection, query, where, onSnapshot, deleteDoc, doc, setDoc, getDoc, updateDoc, getDocs } from "firebase/firestore";
 import AddHabit from "../components/AddHabit";
 import { calculateStreak } from "../utils/streakCalculator";
+import WeeklyView from "../components/WeeklyView";
 
 function Dashboard() {
   const navigate = useNavigate();
@@ -153,6 +154,7 @@ function Dashboard() {
                       <p className="text-sm text-orange-500 font-medium">
                         🔥 {streaks[habit.id] || 0} day streak
                       </p>
+                      <WeeklyView habitId={habit.id} />
                     </div>
                   )}
                 </div>

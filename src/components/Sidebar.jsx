@@ -12,7 +12,7 @@ const navItems = [
 ];
 
 function Sidebar() {
-  const { theme } = useTheme();
+  const { theme, themeName } = useTheme();
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -21,14 +21,16 @@ function Sidebar() {
     navigate("/");
   };
 
+  const logoEmoji = themeName === "galaxy" ? "🌌" : themeName === "sakura" ? "🌸" : "🍂";
+
   return (
     <div className={`fixed left-0 top-0 h-full w-64 z-20 backdrop-blur-xl border-r ${theme.sidebar} border-white/10 flex flex-col`}>
-      
+
       {/* Logo */}
       <div className="p-6 border-b border-white/10">
         <div className="flex items-center gap-3">
-          <div className={`w-9 h-9 rounded-xl bg-gradient-to-br ${theme.accent} flex items-center justify-center text-white font-bold text-lg shadow-lg`}>
-            H
+          <div className={`w-9 h-9 rounded-xl bg-gradient-to-br ${theme.accent} flex items-center justify-center text-lg shadow-lg`}>
+            {logoEmoji}
           </div>
           <div>
             <h1 className={`font-bold text-lg ${theme.text}`}>HabitFlow</h1>

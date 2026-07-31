@@ -3,6 +3,7 @@ import Login from "./pages/Login";
 import Signup from "./pages/Signup";
 import Dashboard from "./pages/Dashboard";
 import HabitsPage from "./pages/HabitsPage";
+import SettingsPage from "./pages/SettingsPage";
 import ProtectedRoute from "./components/ProtectedRoute";
 
 function App() {
@@ -47,7 +48,7 @@ function App() {
           path="/settings"
           element={
             <ProtectedRoute>
-              <Dashboard />
+              <SettingsPage />
             </ProtectedRoute>
           }
         />

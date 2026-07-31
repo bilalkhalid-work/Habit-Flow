@@ -4,6 +4,8 @@ import Signup from "./pages/Signup";
 import Dashboard from "./pages/Dashboard";
 import HabitsPage from "./pages/HabitsPage";
 import SettingsPage from "./pages/SettingsPage";
+import StatsPage from "./pages/StatsPage";
+import FocusPage from "./pages/FocusPage";
 import ProtectedRoute from "./components/ProtectedRoute";
 
 function App() {
@@ -32,7 +34,7 @@ function App() {
           path="/stats"
           element={
             <ProtectedRoute>
-              <Dashboard />
+              <StatsPage />
             </ProtectedRoute>
           }
         />
@@ -40,7 +42,7 @@ function App() {
           path="/focus"
           element={
             <ProtectedRoute>
-              <Dashboard />
+              <FocusPage />
             </ProtectedRoute>
           }
         />

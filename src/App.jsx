@@ -2,6 +2,7 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Login from "./pages/Login";
 import Signup from "./pages/Signup";
 import Dashboard from "./pages/Dashboard";
+import HabitsPage from "./pages/HabitsPage";
 import ProtectedRoute from "./components/ProtectedRoute";
 
 function App() {
@@ -22,7 +23,7 @@ function App() {
           path="/habits"
           element={
             <ProtectedRoute>
-              <Dashboard />
+              <HabitsPage />
             </ProtectedRoute>
           }
         />

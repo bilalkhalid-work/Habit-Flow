@@ -4,18 +4,19 @@ import { collection, query, where, onSnapshot, deleteDoc, doc, setDoc, getDoc, u
 import { useTheme } from "../context/ThemeContext";
 import Layout from "../components/Layout";
 import { calculateStreak } from "../utils/streakCalculator";
+import { useNavigate } from "react-router-dom";
 
-function ProgressRing({ percentage, color, size = 120 }) {
+function ProgressRing({ percentage, color, size = 140 }) {
   const radius = (size - 16) / 2;
   const circumference = 2 * Math.PI * radius;
   const offset = circumference - (percentage / 100) * circumference;
 
   return (
     <svg width={size} height={size} className="rotate-[-90deg]">
-      <circle cx={size/2} cy={size/2} r={radius} stroke="rgba(255,255,255,0.1)" strokeWidth="8" fill="none" />
+      <circle cx={size/2} cy={size/2} r={radius} stroke="rgba(255,255,255,0.1)" strokeWidth="10" fill="none" />
       <circle
         cx={size/2} cy={size/2} r={radius}
-        stroke={color} strokeWidth="8" fill="none"
+        stroke={color} strokeWidth="10" fill="none"
         strokeDasharray={circumference}
         strokeDashoffset={offset}
         strokeLinecap="round"
@@ -25,8 +26,33 @@ function ProgressRing({ percentage, color, size = 120 }) {
   );
 }
 
+function TreeWidget({ completedToday, total, theme, themeName }) {
+  const level = Math.min(Math.floor((completedToday / Math.max(total, 1)) * 5), 5);
+  const treeEmojis = themeName === "sakura"
+    ? ["🌱", "🌿", "🌸", "🌸🌸", "🌳", "🌸🌳🌸"]
+    : ["🌱", "🌿", "🍂", "🍁🌿", "🌲", "🍂🌲🍂"];
+
+  return (
+    <div className={`${theme.card} border rounded-2xl p-5 flex flex-col items-center justify-center`}>
+      <p className={`text-xs font-medium ${theme.textMuted} mb-2`}>
+        {themeName === "sakura" ? "Sakura Tree" : "Autumn Tree"}
+      </p>
+      <div className="text-5xl my-3">{treeEmojis[level]}</div>
+      <p className={`text-sm font-semibold ${theme.text}`}>Level {level + 1}</p>
+      <div className={`w-full mt-3 h-1.5 rounded-full bg-white/10`}>
+        <div
+          className={`h-full rounded-full bg-gradient-to-r ${theme.accent} transition-all duration-1000`}
+          style={{ width: `${(completedToday / Math.max(total, 1)) * 100}%` }}
+        />
+      </div>
+      <p className={`text-xs ${theme.textMuted} mt-2`}>{completedToday}/{total} habits done</p>
+    </div>
+  );
+}
+
 function Dashboard() {
-  const { theme } = useTheme();
+  const { theme, themeName } = useTheme();
+  const navigate = useNavigate();
   const [habits, setHabits] = useState([]);
   const [completions, setCompletions] = useState({});
   const [streaks, setStreaks] = useState({});
@@ -34,6 +60,13 @@ function Dashboard() {
   const hour = new Date().getHours();
   const greeting = hour < 12 ? "Good morning" : hour < 17 ? "Good afternoon" : "Good evening";
   const greetingEmoji = hour < 12 ? "🌅" : hour < 17 ? "☀️" : "🌙";
+  const user = auth.currentUser;
+
+  const motivationalQuotes = {
+    galaxy: "Every star you reach makes the universe brighter. ✨",
+    sakura: "Little by little, a little becomes a lot. 🌸",
+    autumn: "Every leaf that falls is a reminder that change is beautiful. 🍂",
+  };
 
   useEffect(() => {
     const q = query(
@@ -85,76 +118,97 @@ function Dashboard() {
 
   const completedToday = Object.values(completions).filter(Boolean).length;
   const percentage = habits.length > 0 ? Math.round((completedToday / habits.length) * 100) : 0;
-  const totalStreak = Math.max(...Object.values(streaks), 0);
+  const totalStreak = Object.values(streaks).length > 0 ? Math.max(...Object.values(streaks), 0) : 0;
+  const showTree = themeName === "sakura" || themeName === "autumn";
 
   return (
     <Layout>
-      <div className="max-w-5xl mx-auto space-y-6">
+      <div className="max-w-6xl mx-auto space-y-5">
 
         {/* Header */}
-        <div className="flex items-center justify-between">
+        <div className="flex items-start justify-between">
           <div>
-            <h1 className={`text-3xl font-bold ${theme.text}`}>
-              {greeting}, {auth.currentUser?.email?.split("@")[0]} {greetingEmoji}
+            <h1 className={`text-2xl md:text-3xl font-bold ${theme.text}`}>
+              {greeting}, {user?.email?.split("@")[0]} {greetingEmoji}
             </h1>
-            <p className={`${theme.textMuted} mt-1`}>Keep going, growth happens daily.</p>
+            <p className={`${theme.textMuted} mt-1 text-sm italic`}>{motivationalQuotes[themeName]}</p>
           </div>
-          <div className="flex items-center gap-4">
-            <div className={`flex items-center gap-2 px-4 py-2 rounded-xl ${theme.card} border backdrop-blur-sm`}>
+          <div className="flex items-center gap-3">
+            <div className={`flex items-center gap-2 px-3 py-2 rounded-xl ${theme.card} border`}>
               <span>🔥</span>
-              <span className={`font-bold ${theme.text}`}>{totalStreak}</span>
+              <span className={`font-bold ${theme.text} text-sm`}>{totalStreak}</span>
               <span className={`text-xs ${theme.textMuted}`}>Streak</span>
             </div>
-            <div className={`flex items-center gap-2 px-4 py-2 rounded-xl ${theme.card} border backdrop-blur-sm`}>
+            <div className={`flex items-center gap-2 px-3 py-2 rounded-xl ${theme.card} border`}>
               <span>💎</span>
-              <span className={`font-bold ${theme.text}`}>{completedToday * 50}</span>
+              <span className={`font-bold ${theme.text} text-sm`}>{completedToday * 50}</span>
               <span className={`text-xs ${theme.textMuted}`}>Points</span>
             </div>
           </div>
         </div>
 
-        {/* Stats Row */}
-        <div className="grid grid-cols-3 gap-4">
+        {/* Top Row */}
+        <div className={`grid gap-4 ${showTree ? "grid-cols-1 md:grid-cols-3" : "grid-cols-1 md:grid-cols-2"}`}>
 
           {/* Progress Ring */}
-          <div className={`col-span-1 ${theme.card} border backdrop-blur-xl rounded-2xl p-6 flex flex-col items-center justify-center`}>
-            <div className="relative">
-              <ProgressRing percentage={percentage} color={theme.progressRing} />
+          <div className={`${theme.card} border rounded-2xl p-6 flex items-center gap-6`}>
+            <div className="relative flex-shrink-0">
+              <ProgressRing percentage={percentage} color={theme.progressRing} size={120} />
               <div className="absolute inset-0 flex flex-col items-center justify-center">
-                <span className={`text-2xl font-bold ${theme.text}`}>{completedToday}/{habits.length}</span>
+                <span className={`text-xl font-bold ${theme.text}`}>{completedToday}/{habits.length}</span>
                 <span className={`text-xs ${theme.textMuted}`}>Done</span>
               </div>
             </div>
-            <p className={`mt-3 font-semibold ${theme.text}`}>Today's Progress</p>
-            <p className={`text-sm ${theme.textMuted}`}>{percentage === 100 ? "All done! 🎉" : "Keep going!"}</p>
+            <div>
+              <p className={`font-bold text-lg ${theme.text}`}>
+                {percentage === 100 ? "All done! 🎉" : percentage > 50 ? "You're on track!" : "Keep going!"}
+              </p>
+              <p className={`text-sm ${theme.textMuted} mt-1`}>
+                {percentage === 100 ? "Amazing work today!" : `Complete all habits to ${themeName === "sakura" ? "water your sakura tree 🌸" : themeName === "autumn" ? "grow your tree 🍂" : "light up the galaxy ✨"}`}
+              </p>
+              <button
+                onClick={() => navigate("/habits")}
+                className={`mt-3 px-4 py-2 rounded-xl text-sm font-medium bg-gradient-to-r ${theme.accent} text-white shadow-lg hover:scale-105 transition-transform`}
+              >
+                View All Habits →
+              </button>
+            </div>
           </div>
 
           {/* Weekly Overview */}
-          <div className={`col-span-2 ${theme.card} border backdrop-blur-xl rounded-2xl p-6`}>
-            <h3 className={`font-semibold ${theme.text} mb-4`}>Weekly Overview</h3>
-            <div className="flex items-end gap-2 h-24">
-              {["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"].map((day, i) => {
-                const height = Math.random() * 100;
-                return (
-                  <div key={day} className="flex-1 flex flex-col items-center gap-1">
-                    <div
-                      className={`w-full rounded-lg bg-gradient-to-t ${theme.accent} opacity-70`}
-                      style={{ height: `${30 + i * 10}%` }}
-                    />
-                    <span className={`text-xs ${theme.textMuted}`}>{day}</span>
-                  </div>
-                );
-              })}
+          <div className={`${theme.card} border rounded-2xl p-6`}>
+            <h3 className={`font-semibold ${theme.text} mb-1`}>Weekly Overview</h3>
+            <p className={`text-2xl font-bold ${theme.accentText} mb-4`}>{percentage}%</p>
+            <div className="flex items-end gap-1.5 h-16">
+              {["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"].map((day, i) => (
+                <div key={day} className="flex-1 flex flex-col items-center gap-1">
+                  <div
+                    className={`w-full rounded-md bg-gradient-to-t ${theme.accent} opacity-70`}
+                    style={{ height: `${20 + i * 12}%` }}
+                  />
+                  <span className={`text-xs ${theme.textMuted}`}>{day[0]}</span>
+                </div>
+              ))}
             </div>
           </div>
+
+          {/* Tree Widget - only for Sakura and Autumn */}
+          {showTree && (
+            <TreeWidget
+              completedToday={completedToday}
+              total={habits.length}
+              theme={theme}
+              themeName={themeName}
+            />
+          )}
         </div>
 
         {/* Habits Section */}
-        <div className={`${theme.card} border backdrop-blur-xl rounded-2xl p-6`}>
-          <div className="flex items-center justify-between mb-6">
+        <div className={`${theme.card} border rounded-2xl p-6`}>
+          <div className="flex items-center justify-between mb-5">
             <h3 className={`font-semibold text-lg ${theme.text}`}>Your Habits</h3>
             <button
-              onClick={() => window.location.href = "/habits"}
+              onClick={() => navigate("/habits")}
               className={`px-4 py-2 rounded-xl text-sm font-medium bg-gradient-to-r ${theme.accent} text-white shadow-lg hover:scale-105 transition-transform`}
             >
               + Add Habit
@@ -181,7 +235,7 @@ function Dashboard() {
                   <div className="flex items-center gap-4">
                     <button
                       onClick={() => handleToggle(habit.id)}
-                      className={`w-7 h-7 rounded-full border-2 flex items-center justify-center transition-all duration-200 ${
+                      className={`w-7 h-7 rounded-full border-2 flex items-center justify-center transition-all duration-200 flex-shrink-0 ${
                         completions[habit.id]
                           ? `bg-gradient-to-br ${theme.accent} border-transparent text-white`
                           : `border-white/30 hover:border-white/60`
@@ -189,19 +243,38 @@ function Dashboard() {
                     >
                       {completions[habit.id] && <span className="text-xs">✓</span>}
                     </button>
+                    <div className={`w-8 h-8 rounded-lg bg-gradient-to-br ${habit.color || theme.accent} flex items-center justify-center text-sm flex-shrink-0`}>
+                      {habit.icon || "📚"}
+                    </div>
                     <div>
-                      <p className={`font-medium ${completions[habit.id] ? "line-through opacity-60" : ""} ${theme.text}`}>
+                      <p className={`font-medium text-sm ${completions[habit.id] ? "line-through opacity-60" : ""} ${theme.text}`}>
                         {habit.name}
                       </p>
                       <p className={`text-xs ${theme.textMuted}`}>🔥 {streaks[habit.id] || 0} day streak</p>
                     </div>
                   </div>
-                  <button
-                    onClick={() => handleDelete(habit.id)}
-                    className={`text-xs ${theme.textMuted} hover:text-red-400 transition-colors`}
-                  >
-                    ✕
-                  </button>
+                  <div className="flex items-center gap-3">
+                    <div className="hidden md:flex gap-1">
+                      {["M", "T", "W", "T", "F", "S", "S"].map((d, i) => (
+                        <div
+                          key={i}
+                          className={`w-6 h-6 rounded-full flex items-center justify-center text-xs font-medium ${
+                            i === new Date().getDay() - 1 && completions[habit.id]
+                              ? `bg-gradient-to-br ${theme.accent} text-white`
+                              : "bg-white/10 " + theme.textMuted
+                          }`}
+                        >
+                          {d}
+                        </div>
+                      ))}
+                    </div>
+                    <button
+                      onClick={() => handleDelete(habit.id)}
+                      className={`text-xs ${theme.textMuted} hover:text-red-400 transition-colors`}
+                    >
+                      ✕
+                    </button>
+                  </div>
                 </div>
               ))}
             </div>

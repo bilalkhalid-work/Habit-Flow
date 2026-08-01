@@ -110,9 +110,8 @@ function FocusPage() {
             </button>
             <button
               onClick={() => setRunning((r) => !r)}
-              className={`w-20 h-20 rounded-full bg-gradient-to-br ${theme.accent} text-white text-2xl shadow-xl hover:scale-110 transition-all duration-200 flex items-center justify-center`}
-            >
-              {running ? "⏸" : "▶"}
+            className={`w-20 h-20 rounded-full border-2 ${theme.accentBorder} text-4xl shadow-xl hover:scale-110 transition-all duration-200 flex items-center justify-center backdrop-blur-sm bg-white/10`}            >
+            {running ? "⏸" : theme.focusIcon}
             </button>
             <div className={`w-12 h-12 rounded-full border ${theme.accentBorder} flex items-center justify-center`}>
               <span className={`text-sm font-bold ${theme.accentText}`}>{sessions}</span>

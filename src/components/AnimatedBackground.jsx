@@ -2,6 +2,7 @@ import { useTheme } from "../context/ThemeContext";
 import { useEffect, useRef } from "react";
 import sakuraBg from "../assets/sakura-bg.png";
 import autumnBg from "../assets/autumn-bg.png";
+import galaxyBg from "../assets/galaxy-bg.png";
 
 function AnimatedBackground() {
   const { themeName } = useTheme();
@@ -18,48 +19,19 @@ function AnimatedBackground() {
     canvas.width = window.innerWidth;
     canvas.height = window.innerHeight;
 
-    // Preload background image for sakura and autumn
-    if (themeName === "sakura" || themeName === "autumn") {
-      bgImage = new Image();
-      bgImage.src = themeName === "sakura" ? sakuraBg : autumnBg;
-    }
-
-    function drawGalaxyScene() {
-      const bg = ctx.createLinearGradient(0, 0, 0, canvas.height);
-      bg.addColorStop(0, "#0a0015");
-      bg.addColorStop(0.5, "#1a0a35");
-      bg.addColorStop(1, "#0f0520");
-      ctx.fillStyle = bg;
-      ctx.fillRect(0, 0, canvas.width, canvas.height);
-
-      const nebula1 = ctx.createRadialGradient(
-        canvas.width * 0.7, canvas.height * 0.3, 0,
-        canvas.width * 0.7, canvas.height * 0.3, canvas.width * 0.4
-      );
-      nebula1.addColorStop(0, "rgba(120,40,200,0.15)");
-      nebula1.addColorStop(0.5, "rgba(80,20,160,0.08)");
-      nebula1.addColorStop(1, "rgba(0,0,0,0)");
-      ctx.fillStyle = nebula1;
-      ctx.fillRect(0, 0, canvas.width, canvas.height);
-
-      const nebula2 = ctx.createRadialGradient(
-        canvas.width * 0.2, canvas.height * 0.6, 0,
-        canvas.width * 0.2, canvas.height * 0.6, canvas.width * 0.35
-      );
-      nebula2.addColorStop(0, "rgba(40,80,200,0.12)");
-      nebula2.addColorStop(1, "rgba(0,0,0,0)");
-      ctx.fillStyle = nebula2;
-      ctx.fillRect(0, 0, canvas.width, canvas.height);
-    }
+    bgImage = new Image();
+    bgImage.src = themeName === "sakura" ? sakuraBg : themeName === "galaxy" ? galaxyBg : autumnBg;
 
     function drawImageScene() {
       if (bgImage && bgImage.complete) {
         ctx.drawImage(bgImage, 0, 0, canvas.width, canvas.height);
-        // Subtle overlay to make UI cards more readable
         const overlay = ctx.createLinearGradient(0, 0, 0, canvas.height);
         if (themeName === "sakura") {
           overlay.addColorStop(0, "rgba(255,220,235,0.15)");
           overlay.addColorStop(1, "rgba(255,200,220,0.1)");
+        } else if (themeName === "galaxy") {
+          overlay.addColorStop(0, "rgba(5,9,20,0.2)");
+          overlay.addColorStop(1, "rgba(10,22,40,0.15)");
         } else {
           overlay.addColorStop(0, "rgba(20,5,0,0.2)");
           overlay.addColorStop(1, "rgba(10,2,0,0.15)");
@@ -67,38 +39,29 @@ function AnimatedBackground() {
         ctx.fillStyle = overlay;
         ctx.fillRect(0, 0, canvas.width, canvas.height);
       } else {
-        // Fallback while image loads
-        if (themeName === "sakura") {
-          ctx.fillStyle = "#fce4ec";
-        } else {
-          ctx.fillStyle = "#1a0800";
-        }
+        if (themeName === "sakura") ctx.fillStyle = "#fce4ec";
+        else if (themeName === "galaxy") ctx.fillStyle = "#050914";
+        else ctx.fillStyle = "#1a0800";
         ctx.fillRect(0, 0, canvas.width, canvas.height);
       }
     }
 
     const particleConfigs = {
       galaxy: {
-        count: 150,
+        count: 80,
         init: () => ({
           x: Math.random() * canvas.width,
           y: Math.random() * canvas.height,
-          size: Math.random() * 2.5,
-          twinkleSpeed: 0.001 + Math.random() * 0.003,
+          size: Math.random() * 1.8,
+          twinkleSpeed: 0.0008 + Math.random() * 0.002,
           twinkleOffset: Math.random() * Math.PI * 2,
         }),
         draw: (ctx, p, t) => {
-          const opacity = 0.3 + Math.abs(Math.sin(t * p.twinkleSpeed + p.twinkleOffset)) * 0.7;
+          const opacity = 0.2 + Math.abs(Math.sin(t * p.twinkleSpeed + p.twinkleOffset)) * 0.8;
           ctx.beginPath();
           ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
-          ctx.fillStyle = `rgba(255,255,255,${opacity})`;
+          ctx.fillStyle = `rgba(200,220,255,${opacity})`;
           ctx.fill();
-          if (p.size > 1.5) {
-            ctx.beginPath();
-            ctx.arc(p.x, p.y, p.size * 2.5, 0, Math.PI * 2);
-            ctx.fillStyle = `rgba(180,160,255,${opacity * 0.15})`;
-            ctx.fill();
-          }
         },
         update: (p) => p,
       },
@@ -219,18 +182,11 @@ function AnimatedBackground() {
 
     function animate() {
       ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-      if (themeName === "galaxy") {
-        drawGalaxyScene();
-      } else {
-        drawImageScene();
-      }
-
+      drawImageScene();
       particles.forEach((p, i) => {
         config.draw(ctx, p, t);
         particles[i] = config.update(p, t) || p;
       });
-
       t++;
       animationId = requestAnimationFrame(animate);
     }

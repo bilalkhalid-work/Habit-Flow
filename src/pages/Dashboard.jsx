@@ -62,6 +62,20 @@ function Dashboard() {
   const greetingEmoji = hour < 12 ? "🌅" : hour < 17 ? "☀️" : "🌙";
   const user = auth.currentUser;
 
+  const [displayName, setDisplayName] = useState(null);
+
+  useEffect(() => {
+    const fetchName = async () => {
+      const uid = auth.currentUser?.uid;
+      if (!uid) return;
+      const snap = await getDoc(doc(db, "users", uid));
+      if (snap.exists() && snap.data().displayName) {
+        setDisplayName(snap.data().displayName);
+      }
+    };
+    fetchName();
+  }, []);
+
   const motivationalQuotes = {
     galaxy: "Every star you reach makes the universe brighter. ✨",
     sakura: "Little by little, a little becomes a lot. 🌸",
@@ -129,7 +143,7 @@ function Dashboard() {
         <div className="flex items-start justify-between">
           <div>
             <h1 className={`text-2xl md:text-3xl font-bold ${theme.text}`}>
-              {greeting}, {user?.email?.split("@")[0]} {greetingEmoji}
+              {greeting}, {displayName || auth.currentUser?.email?.split("@")[0]} {greetingEmoji}
             </h1>
             <p className={`${theme.textMuted} mt-1 text-sm italic`}>{motivationalQuotes[themeName]}</p>
           </div>

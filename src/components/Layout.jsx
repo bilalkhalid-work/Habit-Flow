@@ -2,16 +2,23 @@ import { useTheme } from "../context/ThemeContext";
 import Sidebar from "./Sidebar";
 import AnimatedBackground from "./AnimatedBackground";
 import AIAssistant from "./AIAssistant";
+import NameModal from "./NameModal";
 import { useState } from "react";
+import { useUserProfile } from "../hooks/useUserProfile";
 
 function Layout({ children }) {
   const { theme } = useTheme();
   const [mobileOpen, setMobileOpen] = useState(false);
+  const { displayName, needsName, saveName } = useUserProfile();
 
   return (
     <div className={`min-h-screen bg-gradient-to-br ${theme.bg} relative`}>
       <AnimatedBackground />
-      <Sidebar mobileOpen={mobileOpen} setMobileOpen={setMobileOpen} />
+      <Sidebar
+        mobileOpen={mobileOpen}
+        setMobileOpen={setMobileOpen}
+        displayName={displayName}
+      />
 
       {/* Mobile top bar */}
       <div className={`fixed top-0 left-0 right-0 z-10 md:hidden flex items-center justify-between px-4 py-3 backdrop-blur-xl border-b border-white/10 ${theme.sidebar}`}>
@@ -29,6 +36,7 @@ function Layout({ children }) {
         {children}
       </main>
 
+      {needsName && <NameModal onSave={saveName} />}
       <AIAssistant />
     </div>
   );

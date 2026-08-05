@@ -19,7 +19,7 @@ const navItemsDark = [
   { label: "Settings", path: "/settings", icon: "⊕" },
 ];
 
-function Sidebar({ mobileOpen, setMobileOpen }) {
+function Sidebar({ mobileOpen, setMobileOpen, displayName }) {
   const { theme, themeName } = useTheme();
   const navigate = useNavigate();
   const location = useLocation();
@@ -47,15 +47,15 @@ function Sidebar({ mobileOpen, setMobileOpen }) {
   };
 
   const activeStyle = isSakura ? {
-    background: "rgba(255,182,193,0.35)",
-    border: "1px solid rgba(255,182,193,0.5)",
-    boxShadow: "0 4px 16px rgba(244,114,182,0.15)",
+    background: "linear-gradient(135deg, #e91e8c, #f06292)",
+    border: "none",
+    boxShadow: "0 8px 24px rgba(233,30,140,0.4)",
   } : {
     background: "rgba(139,92,246,0.15)",
     border: "1px solid rgba(139,92,246,0.3)",
   };
 
-  const activeTextColor = isSakura ? "#be185d" : "#ffffff";
+  const activeTextColor = "#ffffff";
   const inactiveTextColor = isSakura ? "#9d7088" : "rgba(255,255,255,0.5)";
   const titleColor = isSakura ? "#3d1f2d" : "#ffffff";
   const glowColor = isSakura ? "rgba(244,114,182,0.5)" : themeName === "autumn" ? "rgba(249,115,22,0.5)" : "rgba(139,92,246,0.5)";
@@ -77,23 +77,33 @@ function Sidebar({ mobileOpen, setMobileOpen }) {
         {/* Logo */}
         <div className="px-6 pt-8 pb-4">
           <div className="flex items-center gap-3 mb-2">
-            <div className="text-2xl">
-              {logoEmoji}
-            </div>
-            <div>
-              <h1
-                className="font-display text-xl font-semibold tracking-tight"
-                style={{ color: titleColor, fontFamily: "'Cormorant Garamond', serif" }}
-              >
-                HabitFlow
-              </h1>
-              <p
-                className="text-xs font-light tracking-widest uppercase"
-                style={{ color: inactiveTextColor }}
-              >
-                Premium
-              </p>
-            </div>
+          <div className="text-3xl leading-none">{logoEmoji}</div>
+          <div>
+            <h1
+              style={{
+                color: titleColor,
+                fontFamily: "'Cormorant Garamond', serif",
+                fontSize: "22px",
+                fontWeight: "600",
+                letterSpacing: "-0.02em",
+                lineHeight: "1.2",
+              }}
+            >
+              HabitFlow
+            </h1>
+            <p
+              style={{
+                color: isSakura ? "#e91e8c" : inactiveTextColor,
+                fontSize: "10px",
+                fontWeight: "500",
+                letterSpacing: "0.15em",
+                textTransform: "uppercase",
+                fontFamily: "'Inter', sans-serif",
+              }}
+            >
+              Premium
+            </p>
+          </div>
           </div>
 
           <div
@@ -117,7 +127,7 @@ function Sidebar({ mobileOpen, setMobileOpen }) {
               <button
                 key={item.path}
                 onClick={() => { navigate(item.path); setMobileOpen(false); }}
-                className="w-full flex items-center gap-3 px-4 py-3 rounded-2xl text-left transition-all duration-200 hover:scale-[1.01] group"
+                className="w-full flex items-center gap-3 px-4 py-2.5 rounded-2xl text-left transition-all duration-200 hover:scale-[1.01] group relative"
                 style={active ? activeStyle : {
                   background: "transparent",
                   border: "1px solid transparent",
@@ -129,12 +139,6 @@ function Sidebar({ mobileOpen, setMobileOpen }) {
                   if (!active) e.currentTarget.style.background = "transparent";
                 }}
               >
-                {active && (
-                  <div
-                    className="absolute left-0 w-0.5 h-5 rounded-full"
-                    style={{ background: glowColor, boxShadow: `0 0 8px ${glowColor}` }}
-                  />
-                )}
                 <span className="text-lg">{item.icon}</span>
                 <span
                   className="font-medium text-sm tracking-wide"
@@ -152,52 +156,61 @@ function Sidebar({ mobileOpen, setMobileOpen }) {
 
         {/* Divider */}
         <div className="px-6 mb-3">
-          <div
-            className="h-px w-full"
-            style={{ background: `linear-gradient(90deg, transparent, ${glowColor}, transparent)` }}
-          />
+          <div className="flex items-center gap-2 my-4">
+          <div className="flex-1 h-px" style={{ background: `linear-gradient(90deg, transparent, ${glowColor})` }} />
+          <span style={{ fontSize: "10px", opacity: 0.6 }}>🌸</span>
+          <div className="flex-1 h-px" style={{ background: `linear-gradient(90deg, ${glowColor}, transparent)` }} />
+        </div>
         </div>
 
         {/* User */}
         <div className="px-4 pb-6 space-y-2">
           <div
-            className="flex items-center gap-3 px-3 py-2.5 rounded-2xl"
+            className="flex items-center gap-3 px-3 py-3 rounded-2xl"
             style={{
-              background: isSakura ? "rgba(255,182,193,0.2)" : "rgba(255,255,255,0.05)",
-              border: isSakura ? "1px solid rgba(255,182,193,0.3)" : "1px solid rgba(255,255,255,0.08)",
+              background: isSakura ? "rgba(255,255,255,0.5)" : "rgba(255,255,255,0.05)",
+              border: isSakura ? "1px solid rgba(255,255,255,0.7)" : "1px solid rgba(255,255,255,0.08)",
+              boxShadow: isSakura ? "0 4px 16px rgba(219,112,147,0.1)" : "none",
             }}
           >
             <div
-              className="w-8 h-8 rounded-xl flex items-center justify-center text-white text-xs font-bold flex-shrink-0"
-              style={{ background: `linear-gradient(135deg, ${glowColor}, ${glowColor}80)` }}
+              className="w-9 h-9 rounded-xl flex items-center justify-center text-white text-sm font-bold flex-shrink-0"
+              style={{
+                background: isSakura ? "linear-gradient(135deg, #e91e8c, #f06292)" : `linear-gradient(135deg, ${glowColor}, ${glowColor}80)`,
+                boxShadow: isSakura ? "0 4px 12px rgba(233,30,140,0.3)" : "none",
+              }}
             >
-              {auth.currentUser?.email?.[0]?.toUpperCase()}
+              {(displayName || auth.currentUser?.email)?.[0]?.toUpperCase()}
             </div>
             <div className="flex-1 min-w-0">
-              <p className="text-xs font-medium truncate" style={{ color: titleColor }}>
-                {auth.currentUser?.email}
+              <p className="text-xs font-semibold truncate" style={{ color: titleColor }}>
+              {displayName || auth.currentUser?.email?.split("@")[0]}
+            </p>
+              <p className="text-xs font-light mt-0.5" style={{ color: inactiveTextColor }}>
+                Free Plan
               </p>
-              <p className="text-xs font-light" style={{ color: inactiveTextColor }}>Free Plan</p>
             </div>
           </div>
 
           <button
             onClick={handleLogout}
-            className="w-full py-2.5 px-4 rounded-2xl text-sm font-medium transition-all duration-200"
+            className="w-full py-2.5 px-4 rounded-2xl text-sm font-medium transition-all duration-200 flex items-center justify-center gap-2"
             style={{
-              border: `1px solid ${glowColor}50`,
-              color: isSakura ? "#be185d" : inactiveTextColor,
-              background: "transparent",
+              border: isSakura ? "1px solid rgba(233,30,140,0.2)" : `1px solid ${glowColor}50`,
+              color: isSakura ? "#e91e8c" : inactiveTextColor,
+              background: isSakura ? "rgba(255,255,255,0.4)" : "transparent",
+              boxShadow: isSakura ? "0 2px 8px rgba(219,112,147,0.1)" : "none",
             }}
             onMouseEnter={(e) => {
-              e.currentTarget.style.background = isSakura ? "rgba(244,114,182,0.1)" : "rgba(255,255,255,0.05)";
+              e.currentTarget.style.background = isSakura ? "rgba(233,30,140,0.1)" : "rgba(255,255,255,0.05)";
               e.currentTarget.style.transform = "scale(1.01)";
             }}
             onMouseLeave={(e) => {
-              e.currentTarget.style.background = "transparent";
+              e.currentTarget.style.background = isSakura ? "rgba(255,255,255,0.4)" : "transparent";
               e.currentTarget.style.transform = "scale(1)";
             }}
           >
+            <span>→</span>
             Sign Out
           </button>
         </div>

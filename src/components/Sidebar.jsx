@@ -144,8 +144,16 @@ function Sidebar({ mobileOpen, setMobileOpen, displayName }) {
                 }}
               >
                 {isSakura && item.img ? (
-                  <img src={item.img} alt={item.label} className="w-9 h-9 object-contain" style={{ filter: "drop-shadow(0 2px 4px rgba(233,30,140,0.2))" }} />
-                ) : (
+                <img
+                  src={item.img}
+                  alt={item.label}
+                  className="object-contain"
+                  style={{
+                    width: item.label === "Settings" ? "22px" : item.label === "Stats" ? "32px" : "34px",
+                    height: item.label === "Settings" ? "50px" : item.label === "Stats" ? "32px" : "34px",
+                    filter: "drop-shadow(0 2px 6px rgba(233,30,140,0.25))",
+                  }}
+/>                ) : (
                   <span className="text-lg">{item.icon}</span>
                   )}
                 <span

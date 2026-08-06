@@ -273,27 +273,27 @@ function Dashboard() {
             >
               {percentage}%
             </p>
-            <div className="flex items-end gap-2 h-16">
-              {["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"].map((day, i) => (
-                <div key={day} className="flex-1 flex flex-col items-center gap-1">
-                  <div
-                    className="w-full rounded-xl transition-all duration-500"
-                    style={{
-                      height: `${25 + i * 10}%`,
-                      background: isSakura
-                        ? `linear-gradient(180deg, #f06292, #e91e8c)`
-                        : `linear-gradient(180deg, ${theme.progressRing}, ${theme.progressRing}80)`,
-                      opacity: i < 5 ? 0.8 : 0.3,
-                      boxShadow: i < 5 ? `0 4px 12px rgba(233,30,140,0.2)` : "none",
-                    }}
-                  />
-                  <span className="text-xs" style={{ color: isSakura ? "#9d7088" : "rgba(255,255,255,0.4)" }}>
-                    {day[0]}
-                  </span>
-                </div>
-              ))}
-            </div>
-          </div>
+          <div className="flex items-end gap-2 h-16">
+            {["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"].map((day, i) => (
+              <div key={day} className="flex-1 flex flex-col items-center gap-1">
+                <div
+                  className="w-full rounded-xl transition-all duration-500"
+                  style={{
+                    height: `${20 + i * 11}%`,
+                    background: isSakura
+                      ? `linear-gradient(180deg, #f9a8c9, #e91e8c)`
+                      : `linear-gradient(180deg, ${theme.progressRing}80, ${theme.progressRing})`,
+                    opacity: i < 5 ? 1 : 0.35,
+                    boxShadow: i < 5 ? `0 2px 8px rgba(233,30,140,0.25)` : "none",
+                    minHeight: "8px",
+                  }}
+                />
+                <span className="text-xs font-medium" style={{ color: isSakura ? "#c4a0b0" : "rgba(255,255,255,0.4)" }}>
+                  {day[0]}
+                </span>
+              </div>
+            ))}
+          </div>          </div>
 
           {/* Tree Widget */}
           {showTree && (
@@ -363,7 +363,7 @@ function Dashboard() {
                   <div className="flex items-center gap-4">
                     <button
                       onClick={() => handleToggle(habit.id)}
-                      className="w-7 h-7 rounded-full border-2 flex items-center justify-center transition-all duration-300 flex-shrink-0"
+                      className="w-6 h-6 rounded-full border-2 flex items-center justify-center transition-all duration-300 flex-shrink-0 hover:scale-110"
                       style={{
                         background: completions[habit.id]
                           ? isSakura ? "linear-gradient(135deg, #e91e8c, #f06292)" : theme.progressRing

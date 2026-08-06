@@ -2,15 +2,19 @@ import { useTheme } from "../context/ThemeContext";
 import { useNavigate, useLocation } from "react-router-dom";
 import { auth } from "../firebase";
 import { signOut } from "firebase/auth";
+import dashboardIcon from "../assets/dashboard-icon.png";
+import habitsIcon from "../assets/habits-icon.png";
+import statsIcon from "../assets/stats-icon.png";
+import focusIcon from "../assets/focus-icon.png";
+import settingsIcon from "../assets/settings-icon.png";
 
 const navItems = [
-  { label: "Dashboard", path: "/dashboard", icon: "⛩" },
-  { label: "Habits", path: "/habits", icon: "🎋" },
-  { label: "Stats", path: "/stats", icon: "🌸" },
-  { label: "Focus", path: "/focus", icon: "🪨" },
-  { label: "Settings", path: "/settings", icon: "🏮" },
+  { label: "Dashboard", path: "/dashboard", icon: "⛩", img: dashboardIcon },
+  { label: "Habits", path: "/habits", icon: "🎋", img: habitsIcon },
+  { label: "Stats", path: "/stats", icon: "🌸", img: statsIcon },
+  { label: "Focus", path: "/focus", icon: "🪨", img: focusIcon },
+  { label: "Settings", path: "/settings", icon: "🏮", img: settingsIcon },
 ];
-
 const navItemsDark = [
   { label: "Dashboard", path: "/dashboard", icon: "⊹" },
   { label: "Habits", path: "/habits", icon: "◈" },
@@ -139,7 +143,11 @@ function Sidebar({ mobileOpen, setMobileOpen, displayName }) {
                   if (!active) e.currentTarget.style.background = "transparent";
                 }}
               >
-                <span className="text-lg">{item.icon}</span>
+                {isSakura && item.img ? (
+                  <img src={item.img} alt={item.label} className="w-9 h-9 object-contain" style={{ filter: "drop-shadow(0 2px 4px rgba(233,30,140,0.2))" }} />
+                ) : (
+                  <span className="text-lg">{item.icon}</span>
+                  )}
                 <span
                   className="font-medium text-sm tracking-wide"
                   style={{
